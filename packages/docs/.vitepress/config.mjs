@@ -3,6 +3,7 @@ import path from 'path'
 import semver from 'semver'
 import { defineConfig } from 'vitepress'
 import { extractLinks } from './lib/sidebar-links.mjs'
+import llmstxt from 'vitepress-plugin-llms'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const repoUrl = 'https://github.com/future-architect/cheetah-grid'
@@ -85,6 +86,11 @@ export default async ({ mode }) => {
       config (md) { }
     },
     vite: {
+      plugins: [
+        llmstxt({
+          ignoreFiles: ['index.md'],
+        })
+      ],
       resolve: {
         alias: {
           vue: resolve('../node_modules/vue/')

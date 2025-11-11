@@ -25,6 +25,7 @@
     "prettier": "^3.4.2",
     "typedoc": "^0.28.10",
     "typescript": "^5.9.2",
-    "vitepress": "^1.5.0"
+    "vitepress": "^1.5.0",
+    "vitepress-plugin-llms": "^1.9.1"
   }
 }
