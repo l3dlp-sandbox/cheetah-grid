@@ -96,6 +96,13 @@ To replace the value of a cell that has an [input action](../api/js/column_actio
 await clickCell(page, ".sample-grid", "email", 3);
 // Open the editor (the current value is pre-filled).
 await page.keyboard.press("F2");
+// The editor ignores Enter for one macrotask after opening; let it pass.
+await page.evaluate(
+  () =>
+    new Promise((resolve) => {
+      setTimeout(resolve);
+    })
+);
 // Replace the value. The editor is a real focused <input> element.
 await page.locator("input:focus").fill("cat@example.com");
 // Commit.
