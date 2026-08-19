@@ -920,6 +920,23 @@ export class ListGrid<T> extends DrawGrid implements ListGridAPI<T> {
     return LG_EVENT_TYPE;
   }
   /**
+   * Gets the ListGrid instance associated with the given element.
+   * @param element the root element of the grid, or any element inside the grid
+   * @returns the ListGrid instance, or `undefined` if the given element does not belong to any ListGrid
+   */
+  static getInstanceByElement(
+    element: Element
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Accept any type
+  ): ListGrid<any> | undefined {
+    for (let el: Element | null = element; el; el = el.parentElement) {
+      const grid = gridMap.get(el);
+      if (grid) {
+        return grid;
+      }
+    }
+    return undefined;
+  }
+  /**
    * constructor
    *
    * @constructor
@@ -1322,6 +1339,28 @@ export class ListGrid<T> extends DrawGrid implements ListGridAPI<T> {
       cell?.col ?? 0,
       cell?.row ?? this[_].layoutMap.headerRowCount
     );
+  }
+  /**
+   * Gets the value of the cell.
+   * @param {number} col column index of the cell
+   * @param {number} row row index of the cell
+   * @returns the value of the cell. Returns a promise if the record has not been loaded yet. For header cells, returns the caption.
+   */
+  getCellValue(col: number, row: number): FieldData {
+    return _getCellValue(this, col, row);
+  }
+  /**
+   * Gets the value of the cell of the specified field and record index.
+   * @param  {*} field The field.
+   * @param  {number} index The record index
+   * @returns the value of the cell. Returns a promise if the record has not been loaded yet. Returns `undefined` if the cell is not found.
+   */
+  getGridCellValue(field: FieldDef<T>, index: number): FieldData {
+    const cell = this.getCellRangeByField(field, index)?.start;
+    if (cell == null) {
+      return undefined;
+    }
+    return _getCellValue(this, cell.col, cell.row);
   }
   getGridCanvasHelper(): GridCanvasHelper<T> {
     return this[_].gridCanvasHelper;
