@@ -307,6 +307,53 @@
 			expect(ListGrid.getInstanceByElement(element)).toBeUndefined();
 		});
 
+		it('clamps the row direction of getCellsRect by the frozen rows height', async function() {
+			const records = [];
+			for (let i = 0; i < 100; i++) {
+				records.push({a: i});
+			}
+			const grid = new ListGrid({
+				parentElement: createParent(),
+				header: [{field: 'a', caption: 'A', width: 80}],
+				records,
+			});
+			try {
+				const scrolled = new Promise((resolve) => {
+					const id = grid.listen('scroll', () => {
+						grid.unlisten(id);
+						resolve();
+					});
+				});
+				grid.scrollTop = 1000;
+				await scrolled;
+				// The range spans the frozen header row and a body row that is
+				// scrolled far past; the height is clamped by the frozen rows
+				// height (40), not by the column width (80).
+				expect(grid.getCellsRect(0, 0, 0, 1).height).toEqual(40);
+			} finally {
+				grid.dispose();
+			}
+		});
+
+		it('keeps the start edge of an oversized cell in view on makeVisibleCell', function() {
+			const grid = new ListGrid({
+				parentElement: createParent(),
+				header: [
+					{field: 'id', caption: 'ID', width: 80},
+					{field: 'wide', caption: 'W', width: 1000},
+				],
+				records: [{id: 1, wide: 'w'}],
+			});
+			try {
+				grid.makeVisibleCell(1, 1);
+				// Align the left edge of the cell; aligning the right edge
+				// would push the start of the cell out of view.
+				expect(grid.scrollLeft).toEqual(80);
+			} finally {
+				grid.dispose();
+			}
+		});
+
 		it('gets cell values including header captions', function() {
 			const calls = [];
 			const {grid} = createSimpleGrid(calls);
